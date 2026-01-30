@@ -10,11 +10,11 @@ func New() *URLStorage {
 	}
 }
 
-func (s *URLStorage) SaveUrl(url string, alias string) {
+func (s *URLStorage) SaveURL(url string, alias string) {
 	s.urls[alias] = url
 }
 
-func (s *URLStorage) GetUrl(alias string) (url string, exists bool) {
+func (s *URLStorage) GetURL(alias string) (url string, exists bool) {
 	url, exists = s.urls[alias]
 	return url, exists
 }

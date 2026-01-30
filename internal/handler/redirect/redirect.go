@@ -2,16 +2,16 @@ package redirect
 
 import "net/http"
 
-type UrlGetter interface {
-	GetUrl(alias string) (url string, exists bool)
+type URLGetter interface {
+	GetURL(alias string) (url string, exists bool)
 }
 
-func New(urlGetter UrlGetter) http.HandlerFunc {
+func New(urlGetter URLGetter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		alias := r.PathValue("id")
 
 		// originalURL, exists := urlStorage[hash]
-		originalURL, exists := urlGetter.GetUrl(alias)
+		originalURL, exists := urlGetter.GetURL(alias)
 		if !exists {
 			http.Error(w, "[ERROR] URL не найден", http.StatusNotFound)
 			return

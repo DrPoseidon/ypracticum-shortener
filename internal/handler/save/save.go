@@ -9,11 +9,11 @@ import (
 
 const aliasLength = 8
 
-type UrlSaver interface {
-	SaveUrl(url string, alias string)
+type URLSaver interface {
+	SaveURL(url string, alias string)
 }
 
-func New(urlSaver UrlSaver) http.HandlerFunc {
+func New(urlSaver URLSaver) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "[ERROR] Разрешены только POST запросы!", http.StatusMethodNotAllowed)
@@ -34,7 +34,7 @@ func New(urlSaver UrlSaver) http.HandlerFunc {
 
 		alias := random.NewRandomString(aliasLength)
 
-		urlSaver.SaveUrl(originalURL, alias)
+		urlSaver.SaveURL(originalURL, alias)
 
 		shortenedURL := fmt.Sprintf("http://localhost:8080/%s", alias)
 

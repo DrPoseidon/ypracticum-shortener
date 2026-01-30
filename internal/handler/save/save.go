@@ -36,7 +36,7 @@ func New(urlSaver UrlSaver) http.HandlerFunc {
 
 		urlSaver.SaveUrl(originalURL, alias)
 
-		shortenedURL := fmt.Sprintf("http://localhost:8080/%s\n", alias)
+		shortenedURL := fmt.Sprintf("http://localhost:8080/%s", alias)
 
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusCreated)

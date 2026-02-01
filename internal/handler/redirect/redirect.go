@@ -10,7 +10,6 @@ func New(urlGetter URLGetter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		alias := r.PathValue("id")
 
-		// originalURL, exists := urlStorage[hash]
 		originalURL, exists := urlGetter.GetURL(alias)
 		if !exists {
 			http.Error(w, "[ERROR] URL не найден", http.StatusNotFound)

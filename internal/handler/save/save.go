@@ -21,7 +21,7 @@ func New(urlSaver URLSaver) http.HandlerFunc {
 		}
 
 		body, err := io.ReadAll(r.Body)
-		r.Body.Close()
+		defer r.Body.Close()
 		if err != nil {
 			http.Error(w, "[ERROR] Не удалось прочитать тело запроса", http.StatusBadRequest)
 			return

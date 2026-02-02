@@ -71,7 +71,7 @@ func TestSaveHandler(t *testing.T) {
 			}
 
 			r := chi.NewRouter()
-			r.Post("/", New(&mockSaver))
+			r.Post("/", New(&mockSaver, "http://localhost:8080"))
 
 			request := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(tt.body))
 			w := httptest.NewRecorder()
@@ -103,7 +103,7 @@ func TestSaveHandler_MethodNotAllowed(t *testing.T) {
 	mockSaver := MockURLSaver{}
 
 	r := chi.NewRouter()
-	r.Post("/", New(&mockSaver))
+	r.Post("/", New(&mockSaver, "http://localhost:8080"))
 
 	methods := []string{http.MethodGet, http.MethodPut, http.MethodDelete}
 

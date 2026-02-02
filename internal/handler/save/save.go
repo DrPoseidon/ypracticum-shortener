@@ -13,7 +13,7 @@ type URLSaver interface {
 	SaveURL(url string, alias string)
 }
 
-func New(urlSaver URLSaver) http.HandlerFunc {
+func New(urlSaver URLSaver, baseURL string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		defer r.Body.Close()
@@ -32,7 +32,7 @@ func New(urlSaver URLSaver) http.HandlerFunc {
 
 		urlSaver.SaveURL(originalURL, alias)
 
-		shortenedURL := fmt.Sprintf("http://localhost:8080/%s", alias)
+		shortenedURL := fmt.Sprintf("%s/%s", baseURL, alias)
 
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusCreated)

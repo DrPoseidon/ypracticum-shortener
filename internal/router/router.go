@@ -8,10 +8,10 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func New(storage *storage.URLStorage) *chi.Mux {
+func New(storage *storage.URLStorage, baseURL string) *chi.Mux {
 	router := chi.NewRouter()
 
-	router.Post("/", save.New(storage))
+	router.Post("/", save.New(storage, baseURL))
 	router.Get("/{id}", redirect.New(storage))
 
 	return router

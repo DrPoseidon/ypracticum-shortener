@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -28,15 +29,13 @@ func TestSaveHandler(t *testing.T) {
 	}
 
 	tests := []struct {
-		name   string
-		method string
-		body   string
-		want   want
+		name string
+		body string
+		want want
 	}{
 		{
-			name:   "успешное сохранение URL",
-			method: http.MethodPost,
-			body:   "https://www.google.com/",
+			name: "успешное сохранение URL",
+			body: "https://www.google.com/",
 			want: want{
 				statusCode:  http.StatusCreated,
 				contentType: "text/plain",
@@ -44,9 +43,8 @@ func TestSaveHandler(t *testing.T) {
 			},
 		},
 		{
-			name:   "пустой URL",
-			method: http.MethodPost,
-			body:   "",
+			name: "пустой URL",
+			body: "",
 			want: want{
 				statusCode:  http.StatusBadRequest,
 				contentType: "text/plain; charset=utf-8",
@@ -54,39 +52,8 @@ func TestSaveHandler(t *testing.T) {
 			},
 		},
 		{
-			name:   "метод GET не разрешён",
-			method: http.MethodGet,
-			body:   "https://www.google.com/",
-			want: want{
-				statusCode:  http.StatusMethodNotAllowed,
-				contentType: "text/plain; charset=utf-8",
-				bodyContain: "Разрешены только POST запросы",
-			},
-		},
-		{
-			name:   "метод PUT не разрешён",
-			method: http.MethodPut,
-			body:   "https://www.google.com/",
-			want: want{
-				statusCode:  http.StatusMethodNotAllowed,
-				contentType: "text/plain; charset=utf-8",
-				bodyContain: "Разрешены только POST запросы",
-			},
-		},
-		{
-			name:   "метод DELETE не разрешён",
-			method: http.MethodDelete,
-			body:   "https://www.google.com/",
-			want: want{
-				statusCode:  http.StatusMethodNotAllowed,
-				contentType: "text/plain; charset=utf-8",
-				bodyContain: "Разрешены только POST запросы",
-			},
-		},
-		{
-			name:   "длинный URL",
-			method: http.MethodPost,
-			body:   "https://www.google.com//" + strings.Repeat("a", 10000),
+			name: "длинный URL",
+			body: "https://www.google.com//" + strings.Repeat("a", 10000),
 			want: want{
 				statusCode:  http.StatusCreated,
 				contentType: "text/plain",
@@ -103,12 +70,13 @@ func TestSaveHandler(t *testing.T) {
 				mockSaver.On("SaveURL", tt.body, mock.AnythingOfType("string")).Return()
 			}
 
-			handler := New(&mockSaver)
+			r := chi.NewRouter()
+			r.Post("/", New(&mockSaver))
 
-			request := httptest.NewRequest(tt.method, "/", strings.NewReader(tt.body))
+			request := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(tt.body))
 			w := httptest.NewRecorder()
 
-			handler(w, request)
+			r.ServeHTTP(w, request)
 
 			result := w.Result()
 
@@ -127,6 +95,29 @@ func TestSaveHandler(t *testing.T) {
 			} else {
 				mockSaver.AssertNotCalled(t, "SaveURL")
 			}
+		})
+	}
+}
+
+func TestSaveHandler_MethodNotAllowed(t *testing.T) {
+	mockSaver := MockURLSaver{}
+
+	r := chi.NewRouter()
+	r.Post("/", New(&mockSaver))
+
+	methods := []string{http.MethodGet, http.MethodPut, http.MethodDelete}
+
+	for _, method := range methods {
+		t.Run(method+" не разрешён", func(t *testing.T) {
+			request := httptest.NewRequest(method, "/", strings.NewReader("https://www.google.com/"))
+			w := httptest.NewRecorder()
+
+			r.ServeHTTP(w, request)
+
+			result := w.Result()
+
+			assert.Equal(t, http.StatusMethodNotAllowed, result.StatusCode)
+			mockSaver.AssertNotCalled(t, "SaveURL")
 		})
 	}
 }

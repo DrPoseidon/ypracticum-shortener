@@ -1,6 +1,10 @@
 package redirect
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+)
 
 type URLGetter interface {
 	GetURL(alias string) (url string, exists bool)
@@ -8,7 +12,7 @@ type URLGetter interface {
 
 func New(urlGetter URLGetter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		alias := r.PathValue("id")
+		alias := chi.URLParam(r, "id")
 
 		originalURL, exists := urlGetter.GetURL(alias)
 		if !exists {

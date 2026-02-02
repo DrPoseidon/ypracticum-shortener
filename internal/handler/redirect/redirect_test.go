@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -55,16 +56,6 @@ func TestRedirectHandler(t *testing.T) {
 			},
 		},
 		{
-			name:       "пустой alias",
-			alias:      "",
-			mockURL:    "",
-			mockExists: false,
-			want: want{
-				statusCode:  http.StatusNotFound,
-				bodyContain: "URL не найден",
-			},
-		},
-		{
 			name:       "длинный alias",
 			alias:      "verylongaliasname123456789",
 			mockURL:    "",
@@ -81,13 +72,13 @@ func TestRedirectHandler(t *testing.T) {
 			mockGetter := MockURLGetter{}
 			mockGetter.On("GetURL", tt.alias).Return(tt.mockURL, tt.mockExists)
 
-			handler := New(&mockGetter)
+			r := chi.NewRouter()
+			r.Get("/{id}", New(&mockGetter))
 
 			request := httptest.NewRequest(http.MethodGet, "/"+tt.alias, nil)
-			request.SetPathValue("id", tt.alias)
 			w := httptest.NewRecorder()
 
-			handler(w, request)
+			r.ServeHTTP(w, request)
 
 			result := w.Result()
 

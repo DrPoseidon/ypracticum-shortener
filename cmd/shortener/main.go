@@ -4,20 +4,21 @@ import (
 	"fmt"
 	"net/http"
 
-	"DrPoseidon/ypracticum-shortener/internal/handler/redirect"
-	"DrPoseidon/ypracticum-shortener/internal/handler/save"
+	"DrPoseidon/ypracticum-shortener/internal/router"
 	"DrPoseidon/ypracticum-shortener/internal/storage"
 )
 
 func main() {
 	urlStorage := storage.New()
+	mux := router.New(urlStorage)
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", save.New(urlStorage))
-	mux.HandleFunc("/{id}", redirect.New(urlStorage))
+	server := &http.Server{
+		Addr:    "localhost:8080",
+		Handler: mux,
+	}
 
 	fmt.Println("Сервер запущен на http://localhost:8080")
-	err := http.ListenAndServe(":8080", mux)
+	err := server.ListenAndServe()
 	if err != nil {
 		panic(err)
 	}

@@ -15,11 +15,6 @@ type URLSaver interface {
 
 func New(urlSaver URLSaver) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			http.Error(w, "[ERROR] Разрешены только POST запросы!", http.StatusMethodNotAllowed)
-			return
-		}
-
 		body, err := io.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {

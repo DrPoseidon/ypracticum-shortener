@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func New(storage *storage.URLStorage) chi.Router {
+func New(storage *storage.URLStorage) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Post("/", save.New(storage))

@@ -115,6 +115,7 @@ func TestSaveHandler_MethodNotAllowed(t *testing.T) {
 			r.ServeHTTP(w, request)
 
 			result := w.Result()
+			defer result.Body.Close()
 
 			assert.Equal(t, http.StatusMethodNotAllowed, result.StatusCode)
 			mockSaver.AssertNotCalled(t, "SaveURL")
